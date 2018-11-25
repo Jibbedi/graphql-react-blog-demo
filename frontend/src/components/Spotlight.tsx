@@ -12,6 +12,13 @@ const SpotlightWrapper = styled.div<SpotlightWrapperProps>`
   background: url("${props => props.backgroundSource}") top left;
   background-size: cover;
   border-bottom: 4px solid ${props => props.theme.accentColor};
+  transition: 2s all ease-in-out;
+  cursor: pointer;
+  
+  &:hover {
+    background-position-y: -50px;
+  } 
+  
 `;
 
 const SpotlightDetails = styled.div`
@@ -24,7 +31,6 @@ const SpotlightDetails = styled.div`
   font-size: 1.5em;
   padding: 20px 10px;
   min-width: 300px;
-  cursor: pointer;
   `;
 
 class Spotlight extends Component {
