@@ -12,8 +12,10 @@ interface WebkitNavigator extends Navigator {
 export function isDeviceConnectionFast(): boolean {
   const navigator = window.navigator as WebkitNavigator;
   const connection = navigator.connection as Connection;
-  return (
-    connection &&
-    (connection.effectiveType === "4g" || connection.effectiveType === "3g")
-  );
+
+  if (!connection) {
+    return true;
+  }
+
+  return connection.effectiveType === "4g" || connection.effectiveType === "3g";
 }
