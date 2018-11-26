@@ -7,6 +7,7 @@ import Sidebar from './components/Sidebar';
 import ArticleOverview from './components/ArticleOverview';
 import { enhancePostWithCommentsAndAuthorData, requestAllPosts } from './helpers/loader';
 import { Post } from './model/Post';
+import { isDeviceConnectionFast } from './helpers/connection';
 
 export interface AppState {
   spotlight?: Post[];
@@ -58,9 +59,11 @@ class App extends Component<any, AppState> {
   };
 
   async componentDidMount(): Promise<void> {
-    const spotlight = requestAllPosts({ onlySpotlight: true }).then(
-      (posts: Post[]) => this.setState({ spotlight: posts })
-    );
+    const spotlight = isDeviceConnectionFast()
+      ? requestAllPosts({ onlySpotlight: true }).then((posts: Post[]) =>
+          this.setState({ spotlight: posts })
+        )
+      : null;
 
     const recentPosts = requestAllPosts({ onlySpotlight: false }).then(
       (posts: Post[]) => {
