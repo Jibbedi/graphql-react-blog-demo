@@ -15,7 +15,7 @@ export const PostMocks: IPost[] = [
     views: 100
   },
   {
-    title: "Why GraphQL is awesome",
+    title: "Why GraphQL is awesome!!",
     content: "Lorem Ipsum",
     excerpt: "Loren Ipsum",
     thumbnailUrl: "https://source.unsplash.com/random",

@@ -1,6 +1,11 @@
-import React, { Component } from "react";
-import styled from "styled-components";
-import Link from "../ui/Link";
+import React, { Component } from 'react';
+import styled from 'styled-components';
+import Link from '../ui/Link';
+import { Post } from '../model/Post';
+
+export interface ArticleSummaryProps {
+  article: Post;
+}
 
 const ArticleSummaryWrapper = styled.div`
   display: grid;
@@ -35,28 +40,22 @@ const SummaryText = styled.p`
   margin: 10px 0 5px 0;
 `;
 
-class ArticleSummary extends Component {
+class ArticleSummary extends Component<ArticleSummaryProps> {
   render() {
+    const { article } = this.props;
     return (
       <ArticleSummaryWrapper>
         <div>
-          <SummaryImage src="https://source.unsplash.com/random" />
-          <CommentSummary>4 Comments</CommentSummary>
+          <SummaryImage src={article.thumbnailUrl} />
+          <CommentSummary>{article.comments.length} Comments</CommentSummary>
         </div>
         <div>
-          <SummaryTitle>Post Title</SummaryTitle>
+          <SummaryTitle>{article.title}</SummaryTitle>
           <SummarySubTitle>
-            Posted by <b>Author</b> on <b>September 12 2018</b>
+            Posted by <b>{article.author.displayName}</b> on{" "}
+            <b>{article.createTimestamp}</b>
           </SummarySubTitle>
-          <SummaryText>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-            aliquip ex ea commodo consequat. Duis aute irure dolor in
-            reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-            pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-            culpa qui officia deserunt mollit anim id est laborum.
-          </SummaryText>
+          <SummaryText>{article.excerpt}</SummaryText>
           <div>
             <Link href="#">Read More</Link>
           </div>

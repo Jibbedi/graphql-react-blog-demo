@@ -1,5 +1,10 @@
-import React, { Component } from "react";
-import styled from "styled-components";
+import React, { Component } from 'react';
+import styled from 'styled-components';
+import { Post } from '../model/Post';
+
+export interface SpotlightProps {
+  article: Post;
+}
 
 export interface SpotlightWrapperProps {
   backgroundSource: string;
@@ -33,15 +38,13 @@ const SpotlightDetails = styled.div`
   min-width: 300px;
   `;
 
-class Spotlight extends Component {
+class Spotlight extends Component<SpotlightProps> {
   render() {
+    const { article } = this.props;
+
     return (
-      <SpotlightWrapper
-        backgroundSource={
-          "https://images.unsplash.com/photo-1543097692-fa13c6cd8595?ixlib=rb-0.3.5&s=7747490b36647e2becd1d3b9cd3581a1&auto=format&fit=crop&w=1650&q=80"
-        }
-      >
-        <SpotlightDetails>Post in the spotlight!</SpotlightDetails>
+      <SpotlightWrapper backgroundSource={article.imageUrl}>
+        <SpotlightDetails>{article.title}</SpotlightDetails>
       </SpotlightWrapper>
     );
   }

@@ -1,10 +1,12 @@
-import React, { Component } from "react";
-import ArticleSummary from "./ArticleSummary";
-import styled from "styled-components";
-import Spotlight from "./Spotlight";
+import React, { Component } from 'react';
+import ArticleSummary from './ArticleSummary';
+import styled from 'styled-components';
+import Spotlight from './Spotlight';
+import { Post } from '../model/Post';
 
 export interface ArticleOverviewProps {
-  showSpotlight: boolean;
+  spotlight: Post[];
+  recentPosts: Post[];
 }
 
 const ArticleSummaryWrapper = styled.div`
@@ -20,22 +22,18 @@ class ArticleOverview extends Component<ArticleOverviewProps> {
   render() {
     return (
       <main>
-        {this.props.showSpotlight && (
-          <SpotlightWrapper>
-            <Spotlight />
-          </SpotlightWrapper>
-        )}
-        <ArticleSummaryWrapper>
-          <ArticleSummary />
-        </ArticleSummaryWrapper>
+        {this.props.spotlight &&
+          this.props.spotlight.map(spotlight => (
+            <SpotlightWrapper>
+              <Spotlight key={spotlight.title} article={spotlight} />
+            </SpotlightWrapper>
+          ))}
 
-        <ArticleSummaryWrapper>
-          <ArticleSummary />
-        </ArticleSummaryWrapper>
-
-        <ArticleSummaryWrapper>
-          <ArticleSummary />
-        </ArticleSummaryWrapper>
+        {this.props.recentPosts.map(post => (
+          <ArticleSummaryWrapper>
+            <ArticleSummary key={post.title} article={post} />
+          </ArticleSummaryWrapper>
+        ))}
       </main>
     );
   }

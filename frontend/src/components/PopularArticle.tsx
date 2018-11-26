@@ -1,8 +1,10 @@
-import React from "react";
-import styled from "styled-components";
+import React from 'react';
+import styled from 'styled-components';
+import { Post } from '../model/Post';
 
 export interface PopularArticleProps {
-  index: number;
+  rank: number;
+  article: Post;
 }
 
 const PopularArticleWrapper = styled.div`
@@ -24,11 +26,11 @@ const RankIndicator = styled.div`
   margin-right: 10px;
 `;
 
-const PopularArticle = ({ index }: PopularArticleProps) => {
+const PopularArticle = ({ rank, article }: PopularArticleProps) => {
   return (
     <PopularArticleWrapper>
-      <RankIndicator>{index}</RankIndicator>
-      <div>Popular Post Title</div>
+      <RankIndicator>{rank}</RankIndicator>
+      <div>{article.title}</div>
     </PopularArticleWrapper>
   );
 };

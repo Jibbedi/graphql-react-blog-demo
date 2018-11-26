@@ -1,11 +1,19 @@
-import React, { Component } from "react";
-import GlobalStyles from "./ui/Global";
-import Header from "./components/Header";
-import styled, { ThemeProvider } from "styled-components";
-import theme from "./ui/Theme";
-import Sidebar from "./components/Sidebar";
-import ArticleOverview from "./components/ArticleOverview";
-import { isDeviceConnectionFast } from "./helpers/connection";
+import React, { Component } from 'react';
+import GlobalStyles from './ui/Global';
+import Header from './components/Header';
+import styled, { ThemeProvider } from 'styled-components';
+import theme from './ui/Theme';
+import Sidebar from './components/Sidebar';
+import ArticleOverview from './components/ArticleOverview';
+import { enhancePostWithCommentsAndAuthorData, requestAllPosts } from './helpers/loader';
+import { Post } from './model/Post';
+
+export interface AppState {
+  spotlight?: Post[];
+  recentPosts?: Post[];
+  popularPosts?: Post[];
+  loading: boolean;
+}
 
 const LayoutWrapper = styled.div`
   max-width: 1200px;
@@ -41,8 +49,41 @@ const ContentWrapper = styled.div`
   }
 `;
 
-class App extends Component {
+class App extends Component<any, AppState> {
+  state: AppState = {
+    loading: true,
+    recentPosts: [],
+    spotlight: [],
+    popularPosts: []
+  };
+
+  async componentDidMount(): Promise<void> {
+    const spotlight = requestAllPosts({ onlySpotlight: true }).then(
+      (posts: Post[]) => this.setState({ spotlight: posts })
+    );
+
+    const recentPosts = requestAllPosts({ onlySpotlight: false }).then(
+      (posts: Post[]) => {
+        return Promise.all(
+          posts.map((post: Post) => enhancePostWithCommentsAndAuthorData(post))
+        ).then(enhancedPosts => {
+          this.setState({ recentPosts: enhancedPosts });
+        });
+      }
+    );
+
+    const popularPosts = requestAllPosts({ onlySpotlight: true }).then(
+      (posts: Post[]) => this.setState({ popularPosts: posts })
+    );
+
+    await Promise.all([spotlight, recentPosts, popularPosts]);
+
+    this.setState({ loading: false });
+  }
+
   render() {
+    if (this.state.loading) return <div>Loading...</div>;
+
     return (
       <ThemeProvider theme={theme}>
         <LayoutWrapper>
@@ -50,10 +91,13 @@ class App extends Component {
           <Header />
           <ContentWrapper>
             <MainWrapper>
-              <ArticleOverview showSpotlight={isDeviceConnectionFast()} />
+              <ArticleOverview
+                spotlight={this.state.spotlight}
+                recentPosts={this.state.recentPosts}
+              />
             </MainWrapper>
             <SidebarWrapper>
-              <Sidebar />
+              <Sidebar popularPosts={this.state.popularPosts} />
             </SidebarWrapper>
           </ContentWrapper>
         </LayoutWrapper>
