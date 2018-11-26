@@ -1,7 +1,7 @@
 import { ApiModelProperty } from '@nestjs/swagger';
-import { IPost } from '../../../model/Post';
+import { HatoasLink } from './HatoasLink';
 
-export class Post implements IPost {
+export class Post {
   @ApiModelProperty()
   id: string;
   @ApiModelProperty()
@@ -15,13 +15,11 @@ export class Post implements IPost {
   @ApiModelProperty()
   excerpt: string;
   @ApiModelProperty()
-  commentIds: string[];
-  @ApiModelProperty()
-  authorId: string;
-  @ApiModelProperty()
   createTimestamp: number;
   @ApiModelProperty()
   views: number;
   @ApiModelProperty()
   isSpotlight: boolean;
+  @ApiModelProperty()
+  links: HatoasLink[];
 }

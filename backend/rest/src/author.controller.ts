@@ -2,10 +2,12 @@ import { Controller, Get, HttpException, Param } from '@nestjs/common';
 import { ApiNotFoundResponse, ApiOkResponse, ApiUseTags } from '@nestjs/swagger';
 import * as database from '../../database/Database';
 import { Author } from './model/Author';
-import { IAuthor } from '../../model/Author';
+import { AUTHOR_ENDPOINT } from './config/endpoint';
+import { AUTHOR_CONTROLLER } from './config/api-tags';
+import { AuthorConverter } from './converter/author.converter';
 
-@ApiUseTags("author controller")
-@Controller("author")
+@ApiUseTags(AUTHOR_CONTROLLER)
+@Controller(AUTHOR_ENDPOINT)
 export class AuthorController {
   constructor() {}
 
@@ -15,13 +17,13 @@ export class AuthorController {
     type: Author
   })
   @Get(":id")
-  findPostById(@Param("id") id: string): IAuthor {
-    const author = database.findAuthorById(id);
+  findAuthorById(@Param("id") id: string): Author {
+    const databaseAuthor = database.findAuthorById(id);
 
-    if (!author) {
+    if (!databaseAuthor) {
       throw new HttpException("author not found", 404);
     }
 
-    return author;
+    return AuthorConverter.convert(databaseAuthor);
   }
 }

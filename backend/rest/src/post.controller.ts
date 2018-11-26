@@ -1,11 +1,15 @@
-import { Controller, Get, HttpException, Param } from '@nestjs/common';
+import { Controller, Get, HttpException, Optional, Param, Query } from '@nestjs/common';
 import { ApiNotFoundResponse, ApiOkResponse, ApiUseTags } from '@nestjs/swagger';
 import * as database from '../../database/Database';
 import { Post } from './model/Post';
-import { IPost } from '../../model/Post';
+import { POST_ENDPOINT } from './config/endpoint';
+import { POST_CONTROLLER } from './config/api-tags';
+import { Comment } from './model/Comment';
+import { PostConverter } from './converter/post.converter';
+import { CommentConverter } from './converter/comment.converter';
 
-@ApiUseTags("post controller")
-@Controller("post")
+@ApiUseTags(POST_CONTROLLER)
+@Controller(POST_ENDPOINT)
 export class PostController {
   constructor() {}
 
@@ -15,13 +19,42 @@ export class PostController {
     type: Post
   })
   @Get(":id")
-  findPostById(@Param("id") id: string): IPost {
-    const post = database.findPostById(id);
+  findPostById(@Param("id") id: string): Post {
+    const databasePost = database.findPostById(id);
 
-    if (!post) {
+    if (!databasePost) {
       throw new HttpException("post not found", 404);
     }
 
-    return post;
+    return PostConverter.convert(databasePost);
+  }
+
+  @ApiOkResponse({
+    description: "The comments for a given post",
+    type: Post
+  })
+  @Get(":id/comments")
+  findCommentsForPost(@Param("id") id: string): Comment[] {
+    const databaseComments = database.findCommentsForPostById(id);
+
+    return databaseComments.map(databaseComment =>
+      CommentConverter.convert(databaseComment)
+    );
+  }
+
+  @ApiOkResponse({
+    description: "All posts matching the criteria",
+    type: Post
+  })
+  @Get("/get/all")
+  findPosts(
+    @Optional() @Query("onlySpotlight") onlyIncludeSpotlight?: string
+  ): Post[] {
+    console.log(onlyIncludeSpotlight);
+    const databasePosts = database.findPosts({
+      onlyIncludeSpotlight: onlyIncludeSpotlight === "true"
+    });
+
+    return databasePosts.map(post => PostConverter.convert(post));
   }
 }

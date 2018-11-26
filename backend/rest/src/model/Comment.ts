@@ -1,19 +1,18 @@
 import { IComment } from '../../../model/Comment';
 import { ApiModelProperty } from '@nestjs/swagger';
+import { HatoasLink } from './HatoasLink';
 
-export class Comment implements IComment {
+export class Comment  {
   @ApiModelProperty()
   id: string;
-  @ApiModelProperty()
-  authorId: string;
   @ApiModelProperty()
   title: string;
   @ApiModelProperty()
   content: string;
   @ApiModelProperty()
-  responseCommentIds: string[];
-  @ApiModelProperty()
   likes: number;
   @ApiModelProperty()
   createTimestamp: number;
+  @ApiModelProperty()
+  links : HatoasLink[];
 }
