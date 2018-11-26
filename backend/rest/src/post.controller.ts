@@ -50,7 +50,6 @@ export class PostController {
   findPosts(
     @Optional() @Query("onlySpotlight") onlyIncludeSpotlight?: string
   ): Post[] {
-    console.log(onlyIncludeSpotlight);
     const databasePosts = database.findPosts({
       onlyIncludeSpotlight: onlyIncludeSpotlight === "true"
     });
