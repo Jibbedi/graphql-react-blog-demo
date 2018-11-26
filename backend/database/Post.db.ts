@@ -6,6 +6,7 @@ import { findCommentById } from './Comment.db';
 export interface FindPostsQueryOptions {
   onlyIncludeSpotlight?: boolean;
   sortDescendingByKey?: string;
+  limit?: number;
 }
 
 export function findPostById(id: string): IPost {
@@ -22,9 +23,10 @@ export function findCommentsForPostById(postId: string): IComment[] {
 
 export function findPosts({
   onlyIncludeSpotlight,
-  sortDescendingByKey
+  sortDescendingByKey,
+  limit
 }: FindPostsQueryOptions): IPost[] {
-  return PostMocks.filter(post => {
-    return onlyIncludeSpotlight ? post.isSpotlight : true;
-  });
+  return PostMocks.filter(post =>
+    onlyIncludeSpotlight ? post.isSpotlight : true
+  ).slice(0, limit ? limit : undefined);
 }

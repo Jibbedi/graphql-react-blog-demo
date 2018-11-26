@@ -48,10 +48,11 @@ export class PostController {
   })
   @Get("/get/all")
   findPosts(
-    @Optional() @Query("onlySpotlight") onlyIncludeSpotlight?: string
+    @Optional() @Query("onlySpotlight") onlyIncludeSpotlight?: string, @Optional() @Query("limit") limit?: number
   ): Post[] {
     const databasePosts = database.findPosts({
-      onlyIncludeSpotlight: onlyIncludeSpotlight === "true"
+      onlyIncludeSpotlight: onlyIncludeSpotlight === "true",
+      limit
     });
 
     return databasePosts.map(post => PostConverter.convert(post));
