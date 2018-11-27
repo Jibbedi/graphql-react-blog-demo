@@ -70,7 +70,7 @@ class App extends Component<any, AppState> {
         // setState to recentPosts
 
 
-        // 3. grab top 5 posts if sidebar is visible
+        // 3. grab top 5 posts if sidebar is visible (use helper method from ./helpers/size.ts)
         // sortBy views
         // setState to popularPosts
 
