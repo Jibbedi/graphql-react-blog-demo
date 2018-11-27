@@ -1,21 +1,27 @@
-import React, {Component} from 'react';
-import GlobalStyles from './ui/Global';
-import Header from './components/Header';
-import styled, {ThemeProvider} from 'styled-components';
-import theme from './ui/Theme';
-import Sidebar from './components/Sidebar';
-import ArticleOverview from './components/ArticleOverview';
-import {enhancePostWithCommentsAndAuthorData, requestAllPosts} from './helpers/loader';
-import {Post} from './model/Post';
-import {isDeviceConnectionFast} from './helpers/connection';
-import {HIDE_SIDEBAR_BREAKPOINT} from './config/breakpoint';
-import {shouldHideSidebar} from './helpers/size';
+import React, { Component } from "react";
+import GlobalStyles from "./ui/Global";
+import Header from "./components/Header";
+import styled, { ThemeProvider } from "styled-components";
+import theme from "./ui/Theme";
+import Sidebar from "./components/Sidebar";
+import ArticleOverview from "./components/ArticleOverview";
+import { enhancePostWithCommentsAndAuthorData, requestAllPosts } from "./helpers/loader";
+import { Post } from "./model/Post";
+import { isDeviceConnectionFast } from "./helpers/connection";
+import { HIDE_SIDEBAR_BREAKPOINT } from "./config/breakpoint";
+import { shouldHideSidebar } from "./helpers/size";
+import ApolloClient from "apollo-boost";
+import { ApolloProvider } from "react-apollo";
+
+const apolloClient = new ApolloClient({
+  uri: "http://localhost:4000"
+});
 
 export interface AppState {
-    spotlight?: Post[];
-    recentPosts?: Post[];
-    popularPosts?: Post[];
-    loading: boolean;
+  spotlight?: Post[];
+  recentPosts?: Post[];
+  popularPosts?: Post[];
+  loading: boolean;
 }
 
 const LayoutWrapper = styled.div`
@@ -53,67 +59,69 @@ const ContentWrapper = styled.div`
 `;
 
 class App extends Component<any, AppState> {
-    state: AppState = {
-        loading: true,
-        recentPosts: [],
-        spotlight: [],
-        popularPosts: []
-    };
+  state: AppState = {
+    loading: true,
+    recentPosts: [],
+    spotlight: [],
+    popularPosts: []
+  };
 
-    async componentDidMount(): Promise<void> {
-        const spotlight = isDeviceConnectionFast()
-            ? requestAllPosts({onlySpotlight: true}).then((posts: Post[]) =>
-                this.setState({spotlight: posts})
-            )
-            : null;
-
-
-        const recentPosts = requestAllPosts({
-            onlySpotlight: false,
-            limit: 20
-        }).then(
-            (posts: Post[]) => {
-                return Promise.all(
-                    posts.map((post: Post) => enhancePostWithCommentsAndAuthorData(post))
-                ).then(enhancedPosts => {
-                    this.setState({recentPosts: enhancedPosts});
-                });
-            }
-        );
+  async componentDidMount(): Promise<void> {
+    const spotlight = isDeviceConnectionFast()
+      ? requestAllPosts({ onlySpotlight: true }).then((posts: Post[]) =>
+        this.setState({ spotlight: posts })
+      )
+      : null;
 
 
-        const popularPosts = !shouldHideSidebar() ? requestAllPosts({sortDescendingByKey: 'views', limit: 5}).then(
-            (posts: Post[]) => this.setState({popularPosts: posts})
-        ) : null;
+    const recentPosts = requestAllPosts({
+      onlySpotlight: false,
+      limit: 20
+    }).then(
+      (posts: Post[]) => {
+        return Promise.all(
+          posts.map((post: Post) => enhancePostWithCommentsAndAuthorData(post))
+        ).then(enhancedPosts => {
+          this.setState({ recentPosts: enhancedPosts });
+        });
+      }
+    );
 
-        await Promise.all([spotlight, recentPosts, popularPosts]);
 
-        this.setState({loading: false});
-    }
+    const popularPosts = !shouldHideSidebar() ? requestAllPosts({ sortDescendingByKey: "views", limit: 5 }).then(
+      (posts: Post[]) => this.setState({ popularPosts: posts })
+    ) : null;
 
-    render() {
-        if (this.state.loading) return <div>Loading...</div>;
+    await Promise.all([spotlight, recentPosts, popularPosts]);
 
-        return (
-            <ThemeProvider theme={theme}>
-                <LayoutWrapper>
-                    <GlobalStyles/>
-                    <Header/>
-                    <ContentWrapper>
-                        <MainWrapper>
-                            <ArticleOverview
-                                spotlight={this.state.spotlight}
-                                recentPosts={this.state.recentPosts}
-                            />
-                        </MainWrapper>
-                        <SidebarWrapper>
-                            <Sidebar popularPosts={this.state.popularPosts}/>
-                        </SidebarWrapper>
-                    </ContentWrapper>
-                </LayoutWrapper>
-            </ThemeProvider>
-        );
-    }
+    this.setState({ loading: false });
+  }
+
+  render() {
+    if (this.state.loading) return <div>Loading...</div>;
+
+    return (
+      <ApolloProvider client={apolloClient}>
+        <ThemeProvider theme={theme}>
+          <LayoutWrapper>
+            <GlobalStyles/>
+            <Header/>
+            <ContentWrapper>
+              <MainWrapper>
+                <ArticleOverview
+                  spotlight={this.state.spotlight}
+                  recentPosts={this.state.recentPosts}
+                />
+              </MainWrapper>
+              <SidebarWrapper>
+                <Sidebar popularPosts={this.state.popularPosts}/>
+              </SidebarWrapper>
+            </ContentWrapper>
+          </LayoutWrapper>
+        </ThemeProvider>
+      </ApolloProvider>
+    );
+  }
 }
 
 export default App;

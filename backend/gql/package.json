@@ -1,0 +1,41 @@
+{
+  "name": "gql-booking",
+  "version": "0.1.0",
+  "description": "graphql booking api",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "start": "nodemon src/server.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://johannes.kling@bitbucket.tui.de/scm/ipl360/gql-booking.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "apollo-server": "^2.0.7",
+    "axios": "^0.18.0",
+    "cloud-config-client": "^1.4.2",
+    "dataloader": "^1.4.0",
+    "graphql": "^14.0.2",
+    "graphql-subscriptions": "^0.5.8",
+    "graphql-tools": "^3.0.2",
+    "winston": "^3.1.0",
+    "xml2json": "^0.11.2"
+  },
+  "devDependencies": {
+    "@types/graphql": "^0.13.1",
+    "nodemon": "^1.17.5",
+    "ts-jest": "^23.10.4",
+    "@types/jest": "^23.3.0",
+    "jest": "^23.4.1",
+    "prettier": "1.13.3",
+    "ts-node": "^6.0.5",
+    "tslint": "^5.10.0",
+    "typescript": "^2.9.1"
+  }
+}
