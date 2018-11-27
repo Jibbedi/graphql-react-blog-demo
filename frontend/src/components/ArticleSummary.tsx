@@ -1,10 +1,11 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import styled from 'styled-components';
 import Link from '../ui/Link';
-import { Post } from '../model/Post';
+import {Post} from '../model/Post';
+import {formatDateFromTimestamp} from '../helpers/date';
 
 export interface ArticleSummaryProps {
-  article: Post;
+    article: Post;
 }
 
 const ArticleSummaryWrapper = styled.div`
@@ -41,28 +42,28 @@ const SummaryText = styled.p`
 `;
 
 class ArticleSummary extends Component<ArticleSummaryProps> {
-  render() {
-    const { article } = this.props;
-    return (
-      <ArticleSummaryWrapper>
-        <div>
-          <SummaryImage src={article.thumbnailUrl} />
-          <CommentSummary>{article.comments.length} Comments</CommentSummary>
-        </div>
-        <div>
-          <SummaryTitle>{article.title}</SummaryTitle>
-          <SummarySubTitle>
-            Posted by <b>{article.author.displayName}</b> on{" "}
-            <b>{article.createTimestamp}</b>
-          </SummarySubTitle>
-          <SummaryText>{article.excerpt}</SummaryText>
-          <div>
-            <Link href="#">Read More</Link>
-          </div>
-        </div>
-      </ArticleSummaryWrapper>
-    );
-  }
+    render() {
+        const {article} = this.props;
+        return (
+            <ArticleSummaryWrapper>
+                <div>
+                    <SummaryImage src={article.thumbnailUrl}/>
+                    <CommentSummary>{article.comments.length} Comments</CommentSummary>
+                </div>
+                <div>
+                    <SummaryTitle>{article.title}</SummaryTitle>
+                    <SummarySubTitle>
+                        Posted by <b>{article.author.displayName}</b> on {" "}
+                        <b>{formatDateFromTimestamp(article.createTimestamp)}</b>
+                    </SummarySubTitle>
+                    <SummaryText>{article.excerpt}</SummaryText>
+                    <div>
+                        <Link href="#">Read More</Link>
+                    </div>
+                </div>
+            </ArticleSummaryWrapper>
+        );
+    }
 }
 
 export default ArticleSummary;
