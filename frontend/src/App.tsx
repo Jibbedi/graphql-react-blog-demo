@@ -1,28 +1,19 @@
 import React, { Component } from "react";
+import styled, { ThemeProvider } from "styled-components";
+import { HIDE_SIDEBAR_BREAKPOINT } from "./config/breakpoint";
+import ApolloClient, { gql } from "apollo-boost";
+import { ApolloProvider, Query } from "react-apollo";
+import { isDeviceConnectionFast } from "./helpers/connection";
 import GlobalStyles from "./ui/Global";
 import Header from "./components/Header";
-import styled, { ThemeProvider } from "styled-components";
 import theme from "./ui/Theme";
 import Sidebar from "./components/Sidebar";
 import ArticleOverview from "./components/ArticleOverview";
-import { enhancePostWithCommentsAndAuthorData, requestAllPosts } from "./helpers/loader";
-import { Post } from "./model/Post";
-import { isDeviceConnectionFast } from "./helpers/connection";
-import { HIDE_SIDEBAR_BREAKPOINT } from "./config/breakpoint";
 import { shouldHideSidebar } from "./helpers/size";
-import ApolloClient from "apollo-boost";
-import { ApolloProvider } from "react-apollo";
 
 const apolloClient = new ApolloClient({
   uri: "http://localhost:4000"
 });
-
-export interface AppState {
-  spotlight?: Post[];
-  recentPosts?: Post[];
-  popularPosts?: Post[];
-  loading: boolean;
-}
 
 const LayoutWrapper = styled.div`
   max-width: 1200px;
@@ -58,67 +49,62 @@ const ContentWrapper = styled.div`
   }
 `;
 
-class App extends Component<any, AppState> {
-  state: AppState = {
-    loading: true,
-    recentPosts: [],
-    spotlight: [],
-    popularPosts: []
-  };
-
-  async componentDidMount(): Promise<void> {
-    const spotlight = isDeviceConnectionFast()
-      ? requestAllPosts({ onlySpotlight: true }).then((posts: Post[]) =>
-        this.setState({ spotlight: posts })
-      )
-      : null;
-
-
-    const recentPosts = requestAllPosts({
-      onlySpotlight: false,
-      limit: 20
-    }).then(
-      (posts: Post[]) => {
-        return Promise.all(
-          posts.map((post: Post) => enhancePostWithCommentsAndAuthorData(post))
-        ).then(enhancedPosts => {
-          this.setState({ recentPosts: enhancedPosts });
-        });
-      }
-    );
-
-
-    const popularPosts = !shouldHideSidebar() ? requestAllPosts({ sortDescendingByKey: "views", limit: 5 }).then(
-      (posts: Post[]) => this.setState({ popularPosts: posts })
-    ) : null;
-
-    await Promise.all([spotlight, recentPosts, popularPosts]);
-
-    this.setState({ loading: false });
+const QUERY = gql`
+query GetPosts($requestSpotlight: Boolean!, $requestPopular : Boolean!) {
+  spotlight : posts(onlySpotlight: true, limit: 1) @include(if: $requestSpotlight ) {
+    title
+    imageUrl
   }
+  recentPosts: posts(limit: 20) {
+    title
+    thumbnailUrl
+    createTimestamp
+    comments {
+      id
+    }
+    author {
+      displayName
+    }
+  }
+  popularPosts: posts(sortingKey: views, limit: 5) @include(if: $requestPopular) {
+    title
+  }
+}
+`;
 
+class App extends Component {
   render() {
-    if (this.state.loading) return <div>Loading...</div>;
-
     return (
       <ApolloProvider client={apolloClient}>
-        <ThemeProvider theme={theme}>
-          <LayoutWrapper>
-            <GlobalStyles/>
-            <Header/>
-            <ContentWrapper>
-              <MainWrapper>
-                <ArticleOverview
-                  spotlight={this.state.spotlight}
-                  recentPosts={this.state.recentPosts}
-                />
-              </MainWrapper>
-              <SidebarWrapper>
-                <Sidebar popularPosts={this.state.popularPosts}/>
-              </SidebarWrapper>
-            </ContentWrapper>
-          </LayoutWrapper>
-        </ThemeProvider>
+        <Query query={QUERY}
+               variables={{ requestSpotlight: isDeviceConnectionFast(), requestPopular: !shouldHideSidebar() }}>
+          {
+            ({ loading, data }) => {
+
+              if (loading) return <div>Loading...</div>;
+
+
+              return <ThemeProvider theme={theme}>
+                <LayoutWrapper>
+                  <GlobalStyles/>
+                  <Header/>
+                  <ContentWrapper>
+                    <MainWrapper>
+                      <ArticleOverview
+                        spotlight={data.spotlight}
+                        recentPosts={data.recentPosts}
+                      />
+                    </MainWrapper>
+                    <SidebarWrapper>
+                      <Sidebar popularPosts={data.popularPosts}/>
+                    </SidebarWrapper>
+                  </ContentWrapper>
+                </LayoutWrapper>
+              </ThemeProvider>;
+            }
+          }
+        </Query>
+
       </ApolloProvider>
     );
   }
