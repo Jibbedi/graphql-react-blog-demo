@@ -28,26 +28,18 @@ export async function requestAllPosts({
         url.searchParams.append("sortDescendingByKey", sortDescendingByKey);
     }
 
-
-    const response = await fetch(url.href, {});
-    return response.json();
+    // then is called after request is completed. you can return another promise to chain async functions
+    return fetch(url.href, {}).then(response => response.json());
 }
 
 export async function enhancePostWithCommentsAndAuthorData(post: Post) {
-    const commentsLink = post.links.find(
-        (link: HatoasLink) => link.rel === "comments"
-    ).href;
-    const authorLink = post.links.find(
-        (link: HatoasLink) => link.rel === "author"
-    ).href;
 
-    const [comments, author] = await Promise.all([
-        fetch(commentsLink).then(response => response.json()),
-        fetch(authorLink).then(response => response.json())
-    ]);
+    // 1. find comments link and author link from hatoas
 
-    post.comments = comments;
-    post.author = author;
+    // 2. request both values in parallel (Promise.all is your friend)
+    //    use fetch(URL) to make the request.
 
-    return post;
+    // 3. enhance post data with comments and author data and return promise
+
+   return null;
 }

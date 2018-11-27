@@ -5,11 +5,8 @@ import styled, {ThemeProvider} from 'styled-components';
 import theme from './ui/Theme';
 import Sidebar from './components/Sidebar';
 import ArticleOverview from './components/ArticleOverview';
-import {enhancePostWithCommentsAndAuthorData, requestAllPosts} from './helpers/loader';
 import {Post} from './model/Post';
-import {isDeviceConnectionFast} from './helpers/connection';
 import {HIDE_SIDEBAR_BREAKPOINT} from './config/breakpoint';
-import {shouldHideSidebar} from './helpers/size';
 
 export interface AppState {
     spotlight?: Post[];
@@ -61,34 +58,27 @@ class App extends Component<any, AppState> {
     };
 
     async componentDidMount(): Promise<void> {
-        const spotlight = isDeviceConnectionFast()
-            ? requestAllPosts({onlySpotlight: true}).then((posts: Post[]) =>
-                this.setState({spotlight: posts})
-            )
-            : null;
+
+        // use the helper method requestAllPosts from ./helpers/loader.ts
 
 
-        const recentPosts = requestAllPosts({
-            onlySpotlight: false,
-            limit: 20
-        }).then(
-            (posts: Post[]) => {
-                return Promise.all(
-                    posts.map((post: Post) => enhancePostWithCommentsAndAuthorData(post))
-                ).then(enhancedPosts => {
-                    this.setState({recentPosts: enhancedPosts});
-                });
-            }
-        );
+        // 1. grab spotlight post only if device connection is fast enough (use helper method from ./helpers/connection.ts)
+        // setState to spotlight
 
 
-        const popularPosts = !shouldHideSidebar() ? requestAllPosts({sortDescendingByKey: 'views', limit: 5}).then(
-            (posts: Post[]) => this.setState({popularPosts: posts})
-        ) : null;
+        // 2. grab latest 20 post, enhance them with author and comment information
+        // setState to recentPosts
 
-        await Promise.all([spotlight, recentPosts, popularPosts]);
 
-        this.setState({loading: false});
+        // 3. grab top 5 posts if sidebar is visible
+        // sortBy views
+        // setState to popularPosts
+
+        // 4. set loading state to false when all requests have returned
+        // Promise.all is your friend. It takes an array of promises and resolves, when all have requests have finished
+
+
+        //this.setState({loading: false});
     }
 
     render() {
