@@ -1,19 +1,21 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import GlobalStyles from './ui/Global';
 import Header from './components/Header';
-import styled, { ThemeProvider } from 'styled-components';
+import styled, {ThemeProvider} from 'styled-components';
 import theme from './ui/Theme';
 import Sidebar from './components/Sidebar';
 import ArticleOverview from './components/ArticleOverview';
-import { enhancePostWithCommentsAndAuthorData, requestAllPosts } from './helpers/loader';
-import { Post } from './model/Post';
-import { isDeviceConnectionFast } from './helpers/connection';
+import {enhancePostWithCommentsAndAuthorData, requestAllPosts} from './helpers/loader';
+import {Post} from './model/Post';
+import {isDeviceConnectionFast} from './helpers/connection';
+import {HIDE_SIDEBAR_BREAKPOINT} from './config/breakpoint';
+import {shouldHideSidebar} from './helpers/size';
 
 export interface AppState {
-  spotlight?: Post[];
-  recentPosts?: Post[];
-  popularPosts?: Post[];
-  loading: boolean;
+    spotlight?: Post[];
+    recentPosts?: Post[];
+    popularPosts?: Post[];
+    loading: boolean;
 }
 
 const LayoutWrapper = styled.div`
@@ -41,7 +43,7 @@ const ContentWrapper = styled.div`
     padding: 0 20px;
   }
 
-  @media (max-width: 980px) {
+  @media (max-width: ${HIDE_SIDEBAR_BREAKPOINT}px) {
     grid-template-areas: "main main";
 
     ${SidebarWrapper} {
@@ -51,62 +53,67 @@ const ContentWrapper = styled.div`
 `;
 
 class App extends Component<any, AppState> {
-  state: AppState = {
-    loading: true,
-    recentPosts: [],
-    spotlight: [],
-    popularPosts: []
-  };
+    state: AppState = {
+        loading: true,
+        recentPosts: [],
+        spotlight: [],
+        popularPosts: []
+    };
 
-  async componentDidMount(): Promise<void> {
-    const spotlight = isDeviceConnectionFast()
-      ? requestAllPosts({ onlySpotlight: true }).then((posts: Post[]) =>
-          this.setState({ spotlight: posts })
-        )
-      : null;
+    async componentDidMount(): Promise<void> {
+        const spotlight = isDeviceConnectionFast()
+            ? requestAllPosts({onlySpotlight: true}).then((posts: Post[]) =>
+                this.setState({spotlight: posts})
+            )
+            : null;
 
-    const recentPosts = requestAllPosts({ onlySpotlight: false }).then(
-      (posts: Post[]) => {
-        return Promise.all(
-          posts.map((post: Post) => enhancePostWithCommentsAndAuthorData(post))
-        ).then(enhancedPosts => {
-          this.setState({ recentPosts: enhancedPosts });
-        });
-      }
-    );
 
-    const popularPosts = requestAllPosts({ onlySpotlight: true }).then(
-      (posts: Post[]) => this.setState({ popularPosts: posts })
-    );
+        const recentPosts = requestAllPosts({
+            onlySpotlight: false,
+            limit: 20
+        }).then(
+            (posts: Post[]) => {
+                return Promise.all(
+                    posts.map((post: Post) => enhancePostWithCommentsAndAuthorData(post))
+                ).then(enhancedPosts => {
+                    this.setState({recentPosts: enhancedPosts});
+                });
+            }
+        );
 
-    await Promise.all([spotlight, recentPosts, popularPosts]);
 
-    this.setState({ loading: false });
-  }
+        const popularPosts = !shouldHideSidebar() ? requestAllPosts({sortDescendingByKey: 'views', limit: 5}).then(
+            (posts: Post[]) => this.setState({popularPosts: posts})
+        ) : null;
 
-  render() {
-    if (this.state.loading) return <div>Loading...</div>;
+        await Promise.all([spotlight, recentPosts, popularPosts]);
 
-    return (
-      <ThemeProvider theme={theme}>
-        <LayoutWrapper>
-          <GlobalStyles />
-          <Header />
-          <ContentWrapper>
-            <MainWrapper>
-              <ArticleOverview
-                spotlight={this.state.spotlight}
-                recentPosts={this.state.recentPosts}
-              />
-            </MainWrapper>
-            <SidebarWrapper>
-              <Sidebar popularPosts={this.state.popularPosts} />
-            </SidebarWrapper>
-          </ContentWrapper>
-        </LayoutWrapper>
-      </ThemeProvider>
-    );
-  }
+        this.setState({loading: false});
+    }
+
+    render() {
+        if (this.state.loading) return <div>Loading...</div>;
+
+        return (
+            <ThemeProvider theme={theme}>
+                <LayoutWrapper>
+                    <GlobalStyles/>
+                    <Header/>
+                    <ContentWrapper>
+                        <MainWrapper>
+                            <ArticleOverview
+                                spotlight={this.state.spotlight}
+                                recentPosts={this.state.recentPosts}
+                            />
+                        </MainWrapper>
+                        <SidebarWrapper>
+                            <Sidebar popularPosts={this.state.popularPosts}/>
+                        </SidebarWrapper>
+                    </ContentWrapper>
+                </LayoutWrapper>
+            </ThemeProvider>
+        );
+    }
 }
 
 export default App;

@@ -1,45 +1,53 @@
-import { POST_GET_ALL_ENDPOINT } from '../config/endpoint';
-import { Post } from '../model/Post';
-import { HatoasLink } from '../model/HatoasLink';
+import {POST_GET_ALL_ENDPOINT} from '../config/endpoint';
+import {Post} from '../model/Post';
+import {HatoasLink} from '../model/HatoasLink';
 
 export interface RequestAllPostsOptions {
-  onlySpotlight?: boolean;
-  limit?: number;
+    onlySpotlight?: boolean;
+    limit?: number;
+    sortDescendingByKey?: string;
 }
 
 export async function requestAllPosts({
-  onlySpotlight,
-  limit
-}: RequestAllPostsOptions): Promise<Post[]> {
-  const url = new URL(POST_GET_ALL_ENDPOINT);
+                                          onlySpotlight,
+                                          limit,
+                                          sortDescendingByKey
 
-  if (onlySpotlight) {
-    url.searchParams.append("onlySpotlight", String(onlySpotlight));
-  }
+                                      }: RequestAllPostsOptions): Promise<Post[]> {
+    const url = new URL(POST_GET_ALL_ENDPOINT);
 
-  if (limit) {
-    url.searchParams.append("limit", String(limit));
-  }
+    if (onlySpotlight) {
+        url.searchParams.append("onlySpotlight", String(onlySpotlight));
+    }
 
-  const response = await fetch(url.href, {});
-  return response.json();
+    if (limit) {
+        url.searchParams.append("limit", String(limit));
+    }
+
+    if (sortDescendingByKey) {
+        url.searchParams.append("sortDescendingByKey", sortDescendingByKey);
+    }
+
+
+    const response = await fetch(url.href, {});
+    return response.json();
 }
 
 export async function enhancePostWithCommentsAndAuthorData(post: Post) {
-  const commentsLink = post.links.find(
-    (link: HatoasLink) => link.rel === "comments"
-  ).href;
-  const authorLink = post.links.find(
-    (link: HatoasLink) => link.rel === "author"
-  ).href;
+    const commentsLink = post.links.find(
+        (link: HatoasLink) => link.rel === "comments"
+    ).href;
+    const authorLink = post.links.find(
+        (link: HatoasLink) => link.rel === "author"
+    ).href;
 
-  const [comments, author] = await Promise.all([
-    fetch(commentsLink).then(response => response.json()),
-    fetch(authorLink).then(response => response.json())
-  ]);
+    const [comments, author] = await Promise.all([
+        fetch(commentsLink).then(response => response.json()),
+        fetch(authorLink).then(response => response.json())
+    ]);
 
-  post.comments = comments;
-  post.author = author;
+    post.comments = comments;
+    post.author = author;
 
-  return post;
+    return post;
 }
