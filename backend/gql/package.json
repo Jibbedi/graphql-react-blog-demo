@@ -1,7 +1,7 @@
 {
-  "name": "gql-booking",
+  "name": "gql-example",
   "version": "0.1.0",
-  "description": "graphql booking api",
+  "description": "gql-example",
   "main": "index.js",
   "scripts": {
     "build": "tsc",
@@ -10,11 +10,7 @@
     "test:coverage": "jest --coverage",
     "start": "nodemon src/server.ts"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://johannes.kling@bitbucket.tui.de/scm/ipl360/gql-booking.git"
-  },
-  "author": "",
+  "author": "Johannes Kling",
   "license": "ISC",
   "dependencies": {
     "apollo-server": "^2.0.7",
