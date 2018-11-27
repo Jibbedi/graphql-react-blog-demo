@@ -95,9 +95,11 @@ class App extends Component {
                         recentPosts={data.recentPosts}
                       />
                     </MainWrapper>
-                    <SidebarWrapper>
-                      <Sidebar popularPosts={data.popularPosts}/>
-                    </SidebarWrapper>
+                    {data.popularPosts && (
+                      <SidebarWrapper>
+                        <Sidebar popularPosts={data.popularPosts}/>
+                      </SidebarWrapper>
+                    )}
                   </ContentWrapper>
                 </LayoutWrapper>
               </ThemeProvider>;
