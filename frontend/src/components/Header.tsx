@@ -28,7 +28,7 @@ class Header extends Component {
       <HeaderContainer>
         <TitleWrapper>
           <Title>My awesome blog!</Title>
-          <SubTitle>Powered by REST</SubTitle>
+          <SubTitle>Powered by GraphQL</SubTitle>
         </TitleWrapper>
       </HeaderContainer>
     );

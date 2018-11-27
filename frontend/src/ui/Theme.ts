@@ -1,5 +1,5 @@
 const theme = {
-  accentColor: "#0984e3",
+  accentColor: "#E10098",
   titleTextColor: "#001F3F",
   bodyTextColor: "#001F3F",
   contrastTextColor: '#fff',
